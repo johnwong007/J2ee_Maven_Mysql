@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>德扑链平台-首页</title>
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+  <link rel="stylesheet" href="css/iview.css">
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    html,body{
+      position: absolute; top:0px; left:0px;
+    }
+    .widthBox{
+      width:1000px; margin:0px auto; position: relative;
+    }
+    .banner{
+      text-align: center;
+      /*background-color: #111114;*/
+      background: rgba(0,0,0,0.7);
+      width:100%; height:600px;
+      color:#fff;
+    }
+    .cta {
+      border: 2px solid #ffffff;
+      border-radius: 24px;
+      text-transform: uppercase;
+      font-size: 16px;
+      color: #FFFFFF;
+      width: 196px;
+      text-align: center;
+      display: block;
+      margin:0 auto;
+      height: 48px;
+      line-height: 48px;
+      box-sizing: content-box;
+      padding: 0;
+      cursor: pointer;
+      font-weight:600;
+      transition:all 0.3s linear;
+      background: transparent;
+    }
+    .cta:hover{
+      background-color:#F88A2F !important;
+      border:2px solid transparent;
+    }
+    .cta:focus {
+      outline: none;
+    }
+    .message{
+      color:#fff; line-height:35px; font-size: 18px; padding:20px 0px;
+    }
+    .jieduan{
+      background-color: #000;
+      /*background: rgba(0,0,0,1);*/
+      padding-top:40px;
+
+    }
+    .jieduanText li{
+      float:left; width:33.33333%; text-align: center;
+      box-sizing:border-box; padding:40px 0px;
+    }
+    .jieduanText li img{
+      padding:30px 0px;
+      opacity: .7;
+    }
+    .jieduanText li .xx{
+      height: 4px;
+      width: 30px;
+      margin-bottom: 20px;
+      display: inline-block;
+      background-color: #8991A5;
+    }
+    .jieduanText li .nn{
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      text-align: center;
+      letter-spacing: 0.09em;
+      font-weight:600;
+      color:#fff;
+    }
+    .jieduanText li .mm{
+      line-height:30px;
+    }
+    .jieduanText li .mm .p1{
+      color:#F88A2F;
+    }
+
+    .jieduanName{
+      padding:20px 0px 20px 0px; line-height:30px; color:#fff; text-align: center; font-size: 16px;
+      opacity: .8;
+      background: rgba(255,255,255,.1); border-radius: 10px;
+    }
+    .jieduanName1{
+      padding:20px 0px 20px 0px; line-height:30px; color:#fff; text-align: center; font-size: 16px;
+      opacity: .8;
+    }
+    .logo2{
+      position: relative;
+      width:100%;
+      height:212px;
+      /*border-top: 1px solid rgba(255,255,255,0.14);*/
+    }
+    .logo2 .lll{
+      position: absolute; top:0px; left:0px; width:50%; background: #000; height:212px; margin-left:-200px;
+    }
+    .logo2 .ccc{
+      height:212px; width:400px; position: absolute; top:0px; left:50%; margin-left:-200px;
+    }
+    .logo2 .rrr{
+      position: absolute; top:0px; right:0px; width:50%; background: #000; height:212px; margin-right:-200px;
+    }
+    .nav{
+      padding:40px 0px;
+    }
+    .nav img{
+      position: absolute; top:40px; left:0px; height:40px; display: block;
+    }
+    .nav a{
+      position: absolute; top:40px; right:0px; height:40px; display: block;
+    }
+    .logo3{
+      width:200px; display: block; margin:0px auto;
+    }
+    .logo4{
+      width:100px; display: block; margin:0px auto; padding:20px 0px;
+    }
+
+
+
+    .distributed-progress .progress-bar {
+      position: relative;
+      display: block;
+      height: 14px;
+      background: #393939;
+      box-shadow: inset 0 1px 0 0 rgba(249, 249, 249, 0.11);
+      border-radius: 7px;
+    }
+    .distributed-progress .bar.green {
+      background: #00C4B0;
+      position: relative;
+    }
+    .distributed-progress .bar.orange {
+      background-image: linear-gradient(-180deg, #F93800 4%, #F9BE03 99%);
+      box-shadow: inset 0 2px 0 0 #FB924D;
+      position: relative;
+    }
+    .distributed-progress .bar.orange:before{
+      content: '';
+      position: absolute;
+      height:100%;
+      width:100%;
+      background-color: #ffffff;
+      opacity:0.56;
+      filter:blur(10px);
+    }
+    .distributed-progress .bar {
+      display: block;
+      height: 100%;
+      background: #00C4B0;
+      border-radius:7px;
+      width: 0;
+    }
+
+    .mujuan{
+      position: relative;
+      background: rgba(0,0,0,0.8);
+      padding:80px 0px 80px 0px;
+      color:#fff;
+    }
+    .mujuan .ll{
+      position: absolute; top:0px; left:0px; width:300px; text-align: center;
+    }
+    .mujuan .rr{
+      padding-left:300px;
+
+    }
+    .mujuan .p1{
+      color:#fff; line-height:30px; font-size: 24px; font-weight: bold;
+      padding:10px 0px 20px 0px;
+    }
+    .mujuan .p2{
+      color:#fff; line-height:30px; font-size: 16px; opacity: 0.8;
+      padding:0px 0px 20px 0px;
+    }
+    .mujuan .nummm{
+      padding:20px 0px;
+    }
+    .mujuan .nummm .lll{
+      width:50%; float:left;
+    }
+    .mujuan .nummm .rrr{
+      width:50%; float:left; text-align: right;
+    }
+    .mujuan .nummm .s1{
+      opacity: .8;
+    }
+    .mujuan .nummm .s2{
+      font-size: 30px; font-weight: bold;
+    }
+    .logo5{
+      width:200px;
+    }
+    .logo6{
+      width:100px;
+    }
+
+  </style>
+</head>
+<body>
+<div id="app" style="overflow-y: scroll; overflow-x:hidden; background:url('images/14280981.jpg') #111114 center; background-size: cover">
+  <div class="banner">
+    <div class="widthBox" style="height:100%;">
+      <div class="nav">
+        <img src="images/eos_logo@2x.png"/>
+        <a href="account-balance.html">我的钱包</a>
+      </div>
+
+      <div style="position: absolute; bottom:20px; left:0px; width:100%;">
+        <img class="logo3" src="images/EOS_spinning_logo.gif"/>
+        <img class="logo4" src="images/sdc_logo.png"/>
+
+        <div class="message">
+          德扑链平台是一个基于区块链技术的短牌德州扑克游戏平台。<br>
+          采用区块链的技术，解决德州扑克游戏行业的痛点，是对全球线上德州扑克的一项颠覆性创新。
+        </div>
+        <a class="cta" href="account-balance.html">进入我的钱包</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="logo2">
+    <div class="lll"></div>
+    <img class="ccc" src="images/sdc_logo2.png"/>
+    <div class="rrr"></div>
+  </div>
+  <div class="jieduan">
+    <div class="widthBox">
+
+      <div class="jieduanName">
+        平台数字代币SDC(Short Deck Coin)，总发行量 50 亿枚。第一阶段公 开募集 40%，即 20 亿 SDC(25000ETH)。<br>预售后锁仓 4 个月，首期释放 50%， 剩余每个月解锁 10%。其中:
+      </div>
+      <ul class="clearlw jieduanText">
+        <li>
+          <img style="width:30px;" src="images/icon1.png"/>
+          <div class="nn">第一阶段</div>
+          <div class="xx"></div>
+          <div class="mm">
+            <p class="p1">20% 基石投资，</p>
+            <p>通过后台发放的形式给基石投资人，</p>
+            <p>基石轮投资价格 1ETH= 160,000 SDC。</p>
+            <p>总募集 5000ETH，最小投资 200ETH。</p>
+          </div>
+        </li>
+        <li>
+          <img style="width:25px;" src="images/icon2.png"/>
+          <div class="nn">第二阶段</div>
+          <div class="xx"></div>
+          <div class="mm">
+            <p class="p1">30% 天使投资，</p>
+            <p>通过网站发放，天使轮投资价格， </p>
+            <p>1ETH=115,000 SDC。 </p>
+            <p>总募集 7500 ETH，最小投资 100ETH。</p>
+            <p>等到融资额度到达 7500ETH 后，自动进入下一阶段私募阶段。</p>
+          </div>
+        </li>
+        <li>
+          <img style="width:25px;" src="images/icon3.png"/>
+          <div class="nn">第三阶段</div>
+          <div class="xx"></div>
+          <div class="mm">
+            <p class="p1">50% 私募投资，</p>
+            <p>通过网站发放，私募轮投资价格，</p>
+            <p>1ETH= 100,000 SDC。 </p>
+            <p>募集 12,500 ETH，最小投资 50ETH。</p>
+            <p>等融资额度到达 12,500 ETH后，关闭投资管道。</p>
+          </div>
+        </li>
+      </ul>
+      <div class="jieduanName1">
+        具体分配比例图，如下:
+      </div>
+      <img style="width:300px; margin:0px auto; padding:40px 0px; display: block" src="images/tongji.png"/>
+
+
+    </div>
+  </div>
+  <div class="mujuan">
+    <div class="widthBox">
+      <div class="ll">
+        <img class="logo5" src="images/EOS_spinning_logo.gif"/>
+        <img class="logo6" src="images/sdc_logo.png"/>
+      </div>
+      <div class="rr">
+        <div class="p1">{{detailData.collectname}}</div>
+        <div class="p2">当前进度：{{percent}}%</div>
+        <div class="distributed-progress">
+          <div class="progress-bar">
+            <div class="orange bar" :style="'width: '+percent+'%;'">
+              <div class="label" style="right: -155.375px; opacity: 1;">
+                <div class="arrow_box">
+                  <div class="label-text"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="nummm clearlw">
+          <div class="lll">
+            <div class="s1">已募 ETH</div>
+            <div class="s2">{{detailData.quantityed}}</div>
+          </div>
+          <div class="rrr">
+            <div class="s1">剩余 ETH</div>
+            <div class="s2">{{detailData.quantityre}}</div>
+          </div>
+        </div>
+        <a class="cta" style="display: inline-block" href="account-recharge-collect.html">去投资</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<script src="js/jquery.min.js"></script>
+<script src="js/vue.js"></script>
+
+<script src="js/iview.min.js"></script>
+<script src="js/web3.min.js"></script>
+<script src="js/truffle-contract.js"></script>
+<script src="js/app.js"></script>
+<script src="js/publicTemplate.js"></script>
+<script src="js/main.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            percent:10,
+            qiehuan:0,
+            cityList: [
+                {
+                    value: '11111',
+                    label: 'ETH转SDC'
+                },
+//                    {
+//                        value: '22222',
+//                        label: 'SDC币转以太币'
+//                    },
+            ],
+            model1: '11111',
+            account:"获取中...",
+            transAmount: "",
+            zfb_zongJine: 0,
+            detailData:"",
+            state:false,
+        },
+        created: function () {
+
+            var that = this;
+            that.getData();
+        },
+        methods: {
+            getData:function(e){
+                var that = this;
+                $.ajax({
+                    type: 'GET',
+                    url: App.ip+"sdcRecord/getCollectInfo",
+                    dataType:"json",
+                    success: function(res){
+                        console.log("res",res);
+                        that.state = true;
+                        that.detailData = res;
+                        that.data1 = that.detailData.collectList;
+//                        that.detailData.content = '<span class="">众筹内容</span>';
+                        that.percent = parseFloat(that.detailData.quantityed/that.detailData.quantitytotal*100).toFixed(2);
+
+                    },
+                });
+            },
+        }
+    })
+</script>
+</body>
+</html>
