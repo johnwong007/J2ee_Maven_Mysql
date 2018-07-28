@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.irebane.sdc.SdcTxRecordMapper">
+	<select id="getSdcTxRecordByTxHash" parameterType="java.lang.String" resultType="java.util.HashMap">
+		SELECT * FROM trans_record WHERE txhash = lower(#{txhash})
+	</select>
+	<select id="getSdcTxRecordByTxHashAndTxtype" parameterType="java.lang.String" resultType="java.util.HashMap">
+		SELECT * FROM trans_record WHERE txhash = lower(#{txhash}) AND txtype != '1'
+	</select>
+	<insert id="addToCheckTxRecordByTransfer" parameterType="java.util.HashMap">
+	     INSERT INTO trans_record (
+				txhash,
+				`from`,
+				`to`,
+				quantity,
+				currency,
+				txstatus,
+				txtype,
+				remark
+			)
+			VALUES
+				(
+					#{txhash},
+					#{from},
+					#{to},
+					#{quantity},
+					#{currency},
+					#{txstatus},
+					#{txtype},
+					#{remark}
+				)
+	</insert>
+	<insert id="addToCheckTxRecordByCollect" parameterType="java.util.HashMap">
+		INSERT INTO trans_record 
+			<foreach collection="map.keys" item="k" open="(" close=")" separator="," >  
+	            `${k}`  
+	         </foreach>  
+	         VALUES   
+	         <foreach collection="map.keys"  item="k" open="(" close=")" separator=",">  
+	            #{map[${k}]}  
+	         </foreach>		
+	</insert>
+	<select id="queryTxstatusNot0TxInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT * FROM trans_record tr WHERE tr.txstatus != "0" AND tr.txtype != '3'
+	</select>
+	<update id="updateTxstatusAndOtherTxInfo" parameterType="java.util.HashMap">
+		UPDATE trans_record
+		SET from1 = #{from},
+		 to1 = #{to},
+		 currency1 = #{currency},
+		 quantity1 = #{quantity},
+		 txstatus = #{txStatus}
+		WHERE
+			txhash = #{txhash}
+	</update>
+	<select id="queryjobATxInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			tr.*,
+			tm.sdcquantity,
+			unix_timestamp(tm.unlocktime) unlocktime_second
+		FROM
+			trans_record tr,trans_main tm
+		WHERE
+			tr.txhash = tm.`hash`
+		AND
+			tr.txstatus = '0'
+		AND tr.txtype = '2'
+		AND tr.collectstatus = '1'
+		AND tm.sdcquantity IS NOT NULL 
+		AND tm.sdcquantity !=''
+		AND tm.unlocktime IS NOT NULL
+	</select>
+	<select id="queryRatioById" parameterType="java.lang.String" resultType="java.util.HashMap">
+		SELECT * FROM sdc_ratio sr WHERE sr.id = #{ratioid}
+	</select>
+	<update id="updateCollectstatusTxInfo" parameterType="java.lang.String">
+		UPDATE trans_record SET collectstatus = '2' WHERE txhash = #{txhash}
+	</update>
+	<update id="cancelUpdateCollectstatusTxInfo" parameterType="java.lang.String">
+		UPDATE trans_record SET collectstatus = '1' WHERE txhash = #{txhash}
+	</update>
+	<update id="updateCollectstatusTxInfoByUserhash" parameterType="java.lang.String">
+		UPDATE trans_record SET collectstatus = '1' WHERE userhash = #{userhash}
+	</update>
+	<insert id="insertCollectRecord" parameterType="java.util.HashMap">
+		INSERT INTO trans_record (
+				txhash,
+				`from`,
+				`to`,
+				quantity,
+				currency,
+				txstatus,
+				txtype,
+				collectstatus,
+				userhash,
+				targetaddress
+			)
+			VALUES
+				(
+					#{txhash},
+					#{from},
+					#{to},
+					#{quantity},
+					#{currency},
+					#{txstatus},
+					#{txtype},
+					#{collectstatus},
+					#{userhash},
+					#{targetaddress}
+				)
+	</insert>
+	<select id="queryjobBTxInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			tm.*,
+			IFNULL(tt.targetaddress,tm.`from`) userAcc,
+			tt.txhash,
+			unix_timestamp(tm.unlocktime) unlocktime_s
+		FROM
+			trans_record tt,
+			trans_main tm
+		WHERE
+		tt.userhash = tm.`hash`
+		AND	tt.txstatus = '1'
+		AND tt.txtype = '3'
+		AND tt.collectstatus = '2'
+	</select>
+	<update id="updateTxstatusTxInfo" parameterType="java.util.HashMap">
+		UPDATE trans_record
+		SET 
+		 txstatus = #{txStatus}
+		WHERE
+			txhash = #{txhash}
+	</update>
+	<update id="saveLockhashByTxhash" parameterType="java.util.HashMap">
+		UPDATE trans_record
+		SET 
+		 lockhash = CONCAT(IFNULL(lockhash,''),(CASE WHEN lockhash IS NULL THEN '' ELSE ',' END),#{lockhash})
+		WHERE
+			txhash = #{txhash}
+	</update>
+	<select id="queryTransferRecord" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		
+	</select>
+	<select id="getCurrentCollectInfo" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			sc.*,
+			sr.ratioVal
+		FROM
+			sdc_collect sc,sdc_ratio sr
+		WHERE
+			sc.ratioid = sr.id AND
+			sc.iscurrent = '1'
+		LIMIT 1
+	</select>
+	<select id="queryCollectRecord" parameterType="java.lang.String" resultType="java.util.HashMap">
+		SELECT
+			tr.*, date_format(tr.age, '%Y-%m-%d %H:%i:%s') age_text,
+			CASE WHEN tr.txstatus = '0' THEN '成功' ELSE '待核验' END txstatus_text,
+			(SELECT tr1.quantity FROM trans_record tr1 WHERE tr1.userhash = tr.txhash ) sdc_quantity,
+			IFNULL((SELECT sc.chnname FROM sdc_chn sc WHERE sc.chncode = tr.Invitationcode),"") Invitationcode_text
+		FROM
+			trans_record tr 
+		WHERE
+			tr.txtype = '2'
+			<if test="invitationcode != null and invitationcode != ''">
+				AND tr.Invitationcode = #{invitationcode}
+			</if>
+		ORDER BY
+			tr.id DESC
+	</select>
+	<select id="queryCollectRecordForUser" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+			SELECT
+				tr.*, date_format(tr.age, '%Y-%m-%d %H:%i:%s') age_text,
+				CASE WHEN tr.txstatus = '0' THEN '成功' ELSE '待核验' END txstatus_text,
+				IFNULL((SELECT tr1.quantity FROM trans_record tr1 WHERE tr1.userhash = tr.txhash ),"") sdc_quantity,
+				IFNULL((SELECT sc.chnname FROM sdc_chn sc WHERE sc.chncode = tr.Invitationcode),"") Invitationcode_text
+			FROM
+				trans_record tr
+			WHERE
+				tr.txtype = '2'
+			AND tr.`from` = #{accAddress}
+		  	ORDER BY tr.id DESC
+	</select>
+	<select id="querychnList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT * FROM sdc_chn sc 
+	</select>
+	<select id="queryTransferRecordForUser" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			tr.*, date_format(tr.age, '%Y-%m-%d %H:%i:%s') age_text,
+			case when tr.txstatus = '0' then '成功' else '待核验' end txstatus_text
+		FROM
+			trans_record tr
+		WHERE
+		tr.txtype = '1'
+		AND tr.`from` = #{accAddress}
+		AND tr.currency = #{currency}	
+		ORDER BY tr.id DESC
+	</select>
+	<select id="querySdcTransferRecordForAdmin" resultType="java.util.HashMap">
+		SELECT
+			tr.*, date_format(tr.age, '%Y-%m-%d %H:%i:%s') age_text,
+			CASE WHEN tr.txstatus = '0' THEN '成功' ELSE '待核验' END txstatus_text
+		FROM
+			trans_record tr
+		WHERE
+			tr.txtype = '1'
+		AND tr.currency = 'SDC' 
+		ORDER BY tr.id DESC
+	</select>
+	<select id="queryEthTransferRecordForAdmin" resultType="java.util.HashMap">
+		SELECT
+			tr.*, date_format(tr.age, '%Y-%m-%d %H:%i:%s') age_text,
+			CASE WHEN tr.txstatus = '0' THEN '成功' ELSE '待核验' END txstatus_text
+		FROM
+			trans_record tr
+		WHERE
+			tr.txtype = '1'
+		AND tr.currency = 'ETH' 
+		ORDER BY tr.id DESC
+	</select>
+	<update id="updateSdcCollectInfo" parameterType="java.lang.String">
+		UPDATE sdc_collect
+		SET quantityed = (
+			0 + CAST(
+				(
+					CAST(quantityed AS DECIMAL(28, 18)) + CAST(#{quantity} AS DECIMAL(28, 18))
+				) AS CHAR
+			)
+		),
+		quantityre = (
+			0 + CAST(
+				(
+					CAST(quantityre AS DECIMAL(28, 18)) - CAST(#{quantity} AS DECIMAL(28, 18))
+				) AS CHAR
+			)
+		)
+		WHERE
+			iscurrent = '1'
+	</update>
+	<update id="subSdcCollectInfo" parameterType="java.lang.String">
+		UPDATE sdc_collect
+		SET quantityed = (
+			0 + CAST(
+				(
+					CAST(quantityed AS DECIMAL(28, 18)) - CAST(#{quantity} AS DECIMAL(28, 18))
+				) AS CHAR
+			)
+		),
+		quantityre = (
+			0 + CAST(
+				(
+					CAST(quantityre AS DECIMAL(28, 18)) + CAST(#{quantity} AS DECIMAL(28, 18))
+				) AS CHAR
+			)
+		)
+		WHERE
+			iscurrent = '1'
+	</update>
+	<insert id="addchn" parameterType="java.util.HashMap">
+		INSERT INTO sdc_chn 
+			<foreach collection="map.keys" item="key" open="(" close=")" separator="," >  
+	            `${key}`
+	         </foreach>  
+	         VALUES   
+	         <foreach collection="map.keys"  item="key" open="(" close=")" separator=",">  
+	            #{map[${key}]}  
+	         </foreach>
+	</insert>
+	<update id="updatechn" parameterType="java.util.HashMap">
+		UPDATE sdc_chn 
+		<set>
+			<foreach collection="map.keys" item="key" separator=",">
+				`${key}` = #{map[${key}]}
+			</foreach>
+		</set>
+		WHERE id = #{map[id]}
+	</update>
+	<delete id="delchn" parameterType="java.util.HashMap">
+		DELETE FROM sdc_chn WHERE id=${id}
+	</delete>
+	<select id="getMaxBlock" resultType="java.lang.String">
+		SELECT IFNULL(MAX(blockNumber),2000000) max_block  FROM trans_main
+	</select>
+	<select id="isExistTxRecordByHash" parameterType="java.lang.String" resultType="java.util.HashMap">
+		SELECT * FROM trans_main tm WHERE tm.`hash` = #{hash}
+	</select>
+	
+	<insert id="insertTransMain" parameterType="java.util.HashMap">
+		<selectKey resultType="long" keyProperty="id" order="AFTER">  
+	        SELECT  
+	        LAST_INSERT_ID()  
+	    </selectKey>
+	    INSERT INTO trans_main 
+	    (`blockNumber`,`timeStamp`,`hash`,`nonce`,`blockHash`,`transactionIndex`,`from`,`to`,`value`,`gas`,`gasPrice`,`isError`,`txreceipt_status`,`input`,`contractAddress`,`cumulativeGasUsed`,`gasUsed`,`confirmations`)
+        VALUES  
+		<foreach collection="list" item="item" index="index" separator="," >
+			(#{item.blockNumber},#{item.timeStamp},#{item.hash},#{item.nonce},#{item.blockHash},#{item.transactionIndex},#{item.from},#{item.to},#{item.value},#{item.gas},#{item.gasPrice},#{item.isError},#{item.txreceipt_status},#{item.input},#{item.contractAddress},#{item.cumulativeGasUsed},#{item.gasUsed},#{item.confirmations})
+		</foreach>
+	</insert>
+	<select id="queryTransMainList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			tm.*,
+			FROM_UNIXTIME(tm.`timeStamp`,'%Y-%m-%d %H:%i:%s') age_text,
+			(
+				0 + CAST(
+					CAST(
+						(
+							CAST(
+								tm.`value` AS SIGNED INTEGER
+							) / 1000000000000000000
+						) AS DECIMAL (28, 18)
+					) AS CHAR
+				)
+			) quantity,
+			(
+				CASE
+				WHEN tm.`type` = '1' THEN
+					'未处理'
+				WHEN tm.`type` = '2' THEN
+					'已处理'
+				WHEN tm.`type` = '3' THEN
+					'不处理'
+				END
+			) type_text,
+			date_format(tm.unlocktime, '%Y-%m-%d %H:%i:%s') unlocktime_text,
+			(CASE WHEN tm.`hash` = tr.txhash AND tr.txtype = '1' THEN '转账' 
+				  WHEN tm.`hash` = tr.txhash AND tr.txtype = '2' THEN '募集' 
+				  ELSE '其他' END) source
+		FROM
+			trans_main tm LEFT JOIN trans_record tr ON tm.`hash` = tr.txhash
+		WHERE
+			tm.txreceipt_status = '1' AND
+			tm.`to` = #{mainAcc}
+		ORDER BY tm.`type` ASC,tm.id DESC
+	</select>
+	<update id="setTransMainNotCollect" parameterType="java.lang.String">
+		UPDATE trans_main SET `type` = '3' WHERE instr(concat(',',#{ids},','),concat(',',id,','));
+	</update>
+	<update id="setTransMainCollectstatus" parameterType="java.lang.String">
+		UPDATE trans_main SET `type` = '2' WHERE instr(concat(',',#{ids},','),concat(',',id,','));
+	</update>
+	<select id="getTransMainByids" parameterType="java.lang.String" resultType="java.util.HashMap">
+		SELECT
+			tm.*,
+			(
+				0 + CAST(
+					CAST(
+						(
+							CAST(
+								tm.`value` AS SIGNED INTEGER
+							) / 1000000000000000000
+						) AS DECIMAL (28, 18)
+					) AS CHAR
+				)
+			) quantity,
+			date_format(tm.unlocktime, '%Y-%m-%d %H:%i:%s') unlocktime_text
+		FROM
+			trans_main tm
+		WHERE
+			instr(
+				concat(',', #{ids}, ','),
+				concat(',', id, ',')
+			)
+	</select>
+	<select id="getRatioIsUse" resultType="java.lang.String">
+		SELECT id FROM sdc_ratio sr WHERE sr.isuse = '1'
+	</select>
+	<update id="setSdcquantityAndUnlockTimeById" parameterType="java.util.HashMap">
+		UPDATE trans_main SET sdcquantity = #{sdcquantity},unlocktime = str_to_date(#{unlocktime},'%Y-%m-%d %H:%i:%s') WHERE id = #{id}
+	</update>
+	<select id="querySdcRecordForUser" parameterType="java.lang.String" resultType="java.util.HashMap">
+		SELECT
+			tm.*,
+			FROM_UNIXTIME(
+					tm.`timeStamp`,
+					'%Y-%m-%d %H:%i:%s'
+				) age_text,
+			date_format(tm.unlocktime, '%Y-%m-%d %H:%i:%s') unlocktime_text,
+			tt.txhash lock_hash,
+			tt.sdclockcontractAdd,
+			(CASE WHEN tt.txstatus = '0' THEN '成功' WHEN tt.txstatus = '1' THEN '失败' END) sdc_txstatus
+		FROM
+			trans_record tt,
+			trans_main tm
+		WHERE
+			tt.txtype = '3' 
+		AND tt.txstatus = '0'
+		AND tt.userhash = tm.`hash`
+		AND tm.`from` = #{accAddress}
+	</select>
+	<select id="getIsuseRatio" resultType="java.util.HashMap">
+		SELECT * FROM sdc_ratio WHERE isuse = '1' LIMIT 1
+	</select>
+	<update id="updateIsuseRatio" parameterType="java.util.HashMap">
+		UPDATE sdc_ratio SET ratioVal = #{ratioVal} WHERE id = #{id}
+	</update>
+	<insert id="insertTransSdctx" parameterType="java.util.HashMap">
+		<selectKey resultType="long" keyProperty="id" order="AFTER">  
+	        SELECT  
+	        LAST_INSERT_ID()  
+	    </selectKey>
+	    INSERT INTO trans_collect_sdcsend 
+	    (`receipthash`,`lockNum`,`useraddress`,`locktime`,`value`)
+        VALUES  
+		<foreach collection="list" item="item" index="index" separator="," >
+			(#{item.receipthash},#{item.lockNum},#{item.useraddress},#{item.locktime},#{item.value})
+		</foreach>
+	</insert>
+	<select id="queryNoTransaction" resultType="java.util.HashMap">
+		SELECT * FROM trans_collect_sdcsend WHERE proStatus = '0'
+	</select>
+	<select id="queryAlreadyTransaction" resultType="java.util.HashMap">
+		<![CDATA[
+			SELECT
+				*
+			FROM
+				trans_collect_sdcsend
+			WHERE
+				proStatus = '1'
+			AND txStatus != '0'
+			AND lockhash IS NOT NULL
+			AND lockhash != ''
+		]]>
+	</select>
+	<update id="updateNoTransaction" parameterType="java.util.HashMap">
+		UPDATE trans_collect_sdcsend SET txdata = NOW(),lockhash = #{lockhash},proStatus = '1' WHERE id = #{id}
+	</update>
+	<update id="updateAlreadyTransaction" parameterType="java.util.HashMap">
+		UPDATE trans_collect_sdcsend SET txStatus = #{txStatus},checkdata = NOW() WHERE id = #{id}
+	</update>
+	<select id="queryLockContractTransaction" parameterType="java.lang.String" resultType="java.util.HashMap">
+		SELECT
+			tcs.*,
+			date_format(tcs.txdata, '%Y-%m-%d %H:%i:%s') txdata_text,
+			date_format(tcs.checkdata, '%Y-%m-%d %H:%i:%s') checkdata_text,
+			FROM_UNIXTIME(tcs.locktime,'%Y-%m-%d %H:%i:%s') locktime_text,
+			(CASE WHEN tcs.proStatus = '0' THEN '未处理' WHEN tcs.proStatus = '1' THEN '已处理' END) proStatus_text,
+			(CASE WHEN tcs.txStatus = '0' THEN '成功' WHEN tcs.txStatus = '1' THEN '失败' WHEN tcs.txStatus = '2' THEN '未核验' END)txStatus_text
+		FROM
+			trans_collect_sdcsend tcs,trans_main tm,trans_record tr 
+		WHERE
+			tcs.receipthash = tr.txhash AND 
+			tm.`hash` = tr.userhash AND
+			tm.`hash` = #{txhash}
+	</select>
+</mapper>

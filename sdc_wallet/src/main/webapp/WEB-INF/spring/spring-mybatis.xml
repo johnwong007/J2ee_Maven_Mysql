@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+http://www.springframework.org/schema/beans 
+http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+http://www.springframework.org/schema/tx
+http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+http://www.springframework.org/schema/aop
+http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+
+	<!-- ========================================针对myBatis的配置项============================== -->
+	<!-- 配置sqlSessionFactory -->
+	<!-- 实例化sqlSessionFactory时需要使用上述配置好的数据源以及SQL映射文件 -->
+	<!-- 自动扫描com/wangyin/mapping/目录下的所有SQL映射的xml文件, 省掉Configuration.xml里的手工配置 
+		value="classpath:com/wangyin/mapping/*.xml"指的是classpath(类路径)下com.wangyin.mapping包中的所有xml文件 
+		UserMapper.xml位于com.wangyin.mapping包下，这样UserMapper.xml就可以被自动扫描 -->
+
+	<!-- 数据源配置 -->
+	<bean name="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${driverClassName}"></property>
+		<property name="url" value="${jdbc_url}" />
+		<property name="username" value="${jdbc_username}" />
+		<property name="password" value="${jdbc_password}" />
+	</bean>
+
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="mapperLocations" value="classpath:com/irebane/*/*.xml" />
+	</bean>
+
+	<!-- 配置扫描器 -->
+	<bean id="daoScan" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<!-- 扫描com.wangyin.dao这个包以及它的子包下的所有映射接口类 -->
+		<property name="basePackage" value="com.irebane" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+	</bean>
+
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	<!-- 对数据源进行事务管理 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+
+</beans>
