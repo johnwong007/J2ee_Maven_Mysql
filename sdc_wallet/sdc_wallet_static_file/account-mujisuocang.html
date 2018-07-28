@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>资金管理-募集锁仓管理</title>
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+  <link rel="stylesheet" href="css/iview.css">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div id="app">
+  <base-left indexname="accountBalance"></base-left>
+  <base-right>
+      <span slot="url">
+        <a href="index.html"><i class="ivu-icon ivu-icon-home"></i>首页</a>
+        <span class="s1">/</span>
+        <a>资金管理</a>
+        <span class="s1">/</span>
+        <span class="s2">募集锁仓管理</span>
+      </span>
+    <div class="mContent layout-account-recharge-collect" slot="content">
+      <div class="mmm clearlw" >
+        <div class="zongJindu">
+          <div class="zz clearlw">
+            平台数字代币SDC(Short Deck Coin)，总发行量总进展情况-预览
+          </div>
+          <div class="tt clearlw">
+            <div :class="'sub '+item.type" :style="{width: item.scale+'%'}" v-for="item in data">
+              <p class="p1">{{item.month}}月释放</p><p class="p2">{{item.scale}}%</p>
+              <p v-if="item.type=='over'" class="p3">已结束</p>
+              <p v-if="item.type=='in'" class="p3">进行中</p>
+              <p v-if="item.type=='after'" class="p3">未开始</p>
+            </div>
+          </div>
+        </div>
+        <div style="padding:20px;">
+
+          <table class="tableSt1">
+            <tbody><tr>
+              <th scope="col">释放月份</th>
+              <th scope="col">比例</th>
+              <th scope="col">状态</th>
+              <th scope="col" style="width:140px;">操作</th>
+            </tr>
+            <tr v-for="item in data">
+              <td scope="col">
+                <i-Select v-model="item.month" style="width:100px" >
+                  <i-Option v-for="item in monthData" :value="item.value" :key="item.value">{{ item.label }}</i-Option>
+                </i-Select>
+              </td>
+              <td scope="col">
+                <Slider v-model="item.scale" :step="1" ></Slider>
+              </td>
+              <td scope="col">
+                <i-Select v-model="item.type" style="width:100px" >
+                  <i-Option v-for="item in typeData" :value="item.value" :key="item.value">{{ item.label }}</i-Option>
+                </i-Select>
+              </td>
+              <td scope="col">
+                <i-Button type="error" style="width:60px;" size="small"  @click="delData(item.id,item.chnname,item.chncode)"  :loading="butLoad">删除</i-Button>
+              </td>
+            </tr>
+
+            </tbody></table>
+
+
+
+
+        </div>
+
+        <i-Button type="primary"  size="large" :loading="butLoad" @click="submit11" >提交</i-Button>
+
+
+      </div>
+
+
+    </div>
+  </base-right>
+</div>
+
+
+
+<script src="js/jquery.min.js"></script>
+<script src="js/vue.js"></script>
+
+<script src="js/iview.min.js"></script>
+<script src="js/web3.min.js"></script>
+<script src="js/truffle-contract.js"></script>
+<script src="js/app.js"></script>
+<script src="js/publicTemplate.js"></script>
+<script src="js/main.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            data: [
+                {
+                    month:"",
+                    type:"after",
+                    scale:10,
+                }
+            ],
+            subData:{
+                month:"",
+                type:"after",
+                scale:10,
+            },
+            typeData:[
+                { value:"over",label:"已结束", },
+                { value:"in",label:"进行中", },
+                { value:"after",label:"未开始", },
+            ],
+            monthData:[
+                { value:1,label:"1月", },
+                { value:2,label:"2月", },
+                { value:3,label:"3月", },
+                { value:4,label:"4月", },
+                { value:5,label:"5月", },
+                { value:6,label:"6月", },
+                { value:7,label:"7月", },
+                { value:8,label:"8月", },
+                { value:9,label:"9月", },
+                { value:10,label:"10月", },
+                { value:11,label:"11月", },
+                { value:12,label:"12月", },
+            ]
+
+        },
+        created: function () {
+
+
+            var that = this;
+
+//            that.getData();
+
+        },
+        methods: {
+            getData:function(_a){
+                var that = this;
+                that.loading = true;
+                $.ajax({
+                    type: 'GET',
+                    url: App.ip+"sdcRecord/queryTransMainList",
+                    dataType:"json",
+                    data:{
+                        login_no:App.getLoginNo(),
+                    },
+                    success: function(res){
+                        if(res.errorCode=="0004"){
+                            that.$Message.info('登录信息验证失败，请重新登录！');
+                            setTimeout(function(){
+                                window.location.replace("login.html")
+                            },1000)
+                        }
+                        else{
+                            for(var i=0;i<res.length;i++){
+                                res[i].type=false;
+                            }
+                            that.data1 = res;
+                        }
+                        console.log(that.data1);
+                        that.loading = false;
+                    },
+                });
+            },
+        }
+    })
+</script>
+</body>
+</html>

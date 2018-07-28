@@ -1,0 +1,80 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>cccc</title>
+    <!--[if lt IE 9]>
+    <![endif]-->
+    <link rel="stylesheet" href="css/iview.css">
+    <link rel="stylesheet" href="https://etherscan.io/assets/plugins/bootstrap/css/bootstrap.min.css">
+  </head>
+  <body>
+  <div id="app" style="display: none">
+    加载中...
+  </div>
+
+    <script src="js/jquery.min.js"></script>
+    <script>
+
+
+
+
+
+        function nummm(str,c) {
+//            var str = "abbbbbsdsdsdasdlsfj";
+//            var c = "b"; // 要计算的字符
+            var regex = new RegExp(c, 'g'); // 使用g表示整个字符串都要匹配
+            var result = str.match(regex);
+            var count = !result ? 0 : result.length;
+            console.log(c + " 的数量为 " + count);
+            return count;
+        }
+        function jiexiHtml(res){
+            var a = res.indexOf("<table class",1);
+            var b = res.indexOf("</table>",1);
+            var _html = res.substring(a,b+8)
+//            console.log(_html);
+            $("#app").html(_html);
+            jiexiTab(_html);
+
+        }
+        function jiexiTab(_html){
+            //                   计算数据条数（包括头）
+//            nummm(_html,"<tr>");
+            var trNum = $("#app tr").length;
+            console.log($("#app tr").eq(1).html());
+            var aaa=[];
+            for(var i=1;i<trNum;i++){
+                var bb = $("#app tr").eq(i).find("td").eq(1).find("span").html();
+                bb = bb.replace("days","天");
+                bb = bb.replace(" hrs ago"," 小时以前");
+                aaa.push({
+                    a:$("#app tr").eq(i).find("td").eq(0).find("span a").html(),
+//                    b:$("#app tr").eq(i).find("td").eq(1).find("span").attr("title")
+                    b:bb,
+                    c:$("#app tr").eq(i).find("td").eq(2).find("span a").html(),
+                    d:"https://etherscan.io"+$("#app tr").eq(i).find("td").eq(3).find("img").attr("src"),
+                    e:$("#app tr").eq(i).find("td").eq(4).find("span a").html(),
+                    f:$("#app tr").eq(i).find("td").eq(5).html(),
+                })
+            }
+            console.log("aaa",aaa);
+        }
+
+      $.ajax({
+               type: 'GET',
+               url: App.ip+"myServlet/transRecord",
+//               data: "",
+//          dataType:"jsonp",
+//          jsonpCallback:"cb",
+               success: function(res){
+                   jiexiHtml(res)
+
+               },
+           });
+    </script>
+  </body>
+</html>

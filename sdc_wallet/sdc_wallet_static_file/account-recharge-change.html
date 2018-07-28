@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>资金管理-转换</title>
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <link rel="stylesheet" href="css/iview.css">
+    <link rel="stylesheet" href="css/main.css">
+  </head>
+  <body>
+  <div id="app">
+    <base-left indexname="accountBalance"></base-left>
+    <base-right>
+      <span slot="url">
+        <a href="index.html"><i class="ivu-icon ivu-icon-home"></i>首页</a>
+        <span class="s1">/</span>
+        <a>资金管理</a>
+        <span class="s1">/</span>
+        <span class="s2">币种转换</span>
+      </span>
+      <div class="mContent layout-account-recharge" slot="content">
+        <div style="padding:20px;">
+          <!--<div class="layout-tab-h">-->
+            <!--&lt;!&ndash;<a href="account-recharge.html">支付宝充值</a>&ndash;&gt;-->
+            <!--<a href="account-recharge-change.html" class="in" >币种转换</a>-->
+          <!--</div>-->
+          <div class="layout-tab-m">
+            <br/>
+            <ul>
+              <li class="clearlw">
+                <div class="ll"><span>当前账户：</span></div>
+                <div class="rr">
+                  <span style="font-weight: bold">{{account}}</span>
+                </div>
+              </li>
+              <li class="clearlw">
+                <div class="ll"><span>转换方式：</span></div>
+                <div class="rr">
+                  <i-Select v-model="model1" style="width:200px" size="large" >
+                    <i-Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</i-Option>
+                  </i-Select>
+                </div>
+              </li>
+              <li class="clearlw">
+                <div class="ll"><span>转换数量：</span></div>
+                <div class="rr">
+                  <Input-Number v-model="zfb_jine" size="large"  style="width:200px;" placeholder="请输入充值数量"></Input-Number>
+                  <span v-if="model1==11111">个ETH</span>
+                  <span v-if="model1==22222">个SDC</span>
+
+                  <span v-if="model1==11111" style="font-weight: bold">
+                    <span style="font-weight: bold">转换至 </span>
+                    <span style="color:#f22; font-weight: bold; padding:0px 5px; font-size:16px; ">{{parseFloat(zfb_jine*1000000).toFixed(2)}}</span>
+                    个SDC</span>
+                  <span v-if="model1==22222" style="font-weight: bold">
+                    <span style="font-weight: bold">转换至 </span>
+                    <span style="color:#f22; font-weight: bold; padding:0px 5px; font-size:16px; ">{{parseFloat(zfb_jine*1000000).toFixed(2)}}</span>
+                    个ETH</span>
+                </div>
+              </li>
+              <li class="clearlw">
+                <div class="ll"><span> </span></div>
+                <div class="rr">
+                  <span style="font-size:12px; ">当前汇率：1个ETH = 1000000个SDC </span>
+                </div>
+              </li>
+
+              <li class="clearlw">
+                <div class="ll"><span></span></div>
+                <div class="rr">
+                  <i-Button type="primary"  size="large" @click="gotoSubmitZfb">确定转换</i-Button>
+                </div>
+              </li>
+            </ul>
+            <br/>
+            <br/>
+          </div>
+          <br/>
+          <div class="log">
+            <div style="padding-bottom:10px;">转换记录</div>
+            <i-Table :columns="columns1" :data="data1"></i-Table>
+          </div>
+        </div>
+
+      </div>
+    </base-right>
+  </div>
+
+
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/vue.js"></script>
+
+    <script src="js/iview.min.js"></script>
+    <script src="js/web3.min.js"></script>
+    <script src="js/truffle-contract.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/publicTemplate.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+
+                cityList: [
+                    {
+                        value: '11111',
+                        label: 'ETH转SDC'
+                    },
+//                    {
+//                        value: '22222',
+//                        label: 'SDC币转以太币'
+//                    },
+                ],
+                model1: '11111',
+                account:"获取中...",
+                zfb_jine: "",
+                zfb_zongJine: 0,
+                columns1: [
+                    {
+                        title: '转换时间',
+                        key: 'a'
+                    },
+                    {
+                        title: '转换方式',
+                        key: 'b'
+                    },
+                    {
+                        title: '转换数量',
+                        key: 'c'
+                    },
+                    {
+                        title: '状态',
+                        key: 'e'
+                    }
+                ],
+                data1: [
+//                    {
+//                        a: '2018-03-04 12:20:15',
+//                        b: '以太币-SDC币',
+//                        c: '100',
+//                        d: '100',
+//                        e: '转换成功'
+//                    },
+                  ]
+            },
+            created: function () {
+                var that = this;
+                setTimeout(function(){
+                    App.web3.eth.getAccounts(function(error, accounts) {
+                        if (error) {
+                            console.log(error);
+                        }
+                        console.log("account",accounts);
+                        that.account = accounts[0];
+                    });
+                },500);
+            },
+            methods: {
+                gotoSubmitZfb: function () {
+                    alert(this.zfb_jine);
+                }
+            }
+        })
+    </script>
+  </body>
+</html>

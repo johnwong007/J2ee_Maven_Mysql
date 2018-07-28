@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>资金管理-募集</title>
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+  <link rel="stylesheet" href="css/iview.css">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div id="app">
+  <base-left indexname="accountBalance"></base-left>
+  <base-right>
+      <span slot="url">
+        <a href="index.html"><i class="ivu-icon ivu-icon-home"></i>首页</a>
+        <span class="s1">/</span>
+        <a>资金管理</a>
+        <span class="s1">/</span>
+        <span class="s2">募集</span>
+      </span>
+
+
+    <div class="mContent layout-account-recharge-collect" slot="content">
+
+      <div  v-if="!state" style="width:100%; line-height:100px; text-align: center;">
+        加载中...
+      </div>
+      <div class="leftt"  v-if="state">
+
+        <div class="img"><img :src="detailData.imgurl"/></div>
+        <div class="zongJindu">
+          <div class="zz clearlw">
+            平台数字代币SDC(Short Deck Coin)，总发行量总进展情况
+          </div>
+          <div class="tt clearlw">
+            <div :class="'sub '+item.type" :style="{width: item.scale+'%'}" v-for="item in zongJindu">
+              <p class="p1">{{item.month}}月释放</p><p class="p2">{{item.scale}}%</p>
+              <p v-if="item.type=='over'" class="p3">已结束</p>
+              <p v-if="item.type=='in'" class="p3">进行中</p>
+              <p v-if="item.type=='after'" class="p3">未开始</p>
+            </div>
+          </div>
+        </div>
+        <div class="detail">
+          <div class="head clearlw">
+            <div @click="qiehuan=0" :class="'sub '+[qiehuan==0]" ><span class="">众筹内容</span></div>
+            <div @click="qiehuan=1" :class="'sub '+[qiehuan==1]" ><span class="">众筹记录</span></div>
+          </div>
+
+          <div class="main">
+            <div class="sub" v-if="qiehuan==0" v-html='detailData.content'>
+            </div>
+            <div class="sub" v-if="qiehuan==1">
+              <i-Table :columns="columns2" :data="data1"></i-Table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="rightt"  v-if="state">
+        <div class="faqiren">项目发起人：{{detailData.proinitperson}}</div>
+        <div class="name">{{detailData.collectname}}</div>
+        <div class="jine clearlw">
+          <div class="ll">
+            <div class="s1">已募 ETH</div>
+            <div class="s2">{{detailData.quantityed}}</div>
+          </div>
+          <div class="rr">
+            <div class="s1">剩余 ETH</div>
+            <div class="s2">{{detailData.quantityre}}</div>
+          </div>
+          <div class="jindu"><i-Progress :percent="percent" hide-info status="active"></i-Progress></div>
+          <div class="percent1 percent" v-if="percent<100">当前进度：<span>{{percent}}%</span></div>
+          <div class="percent2 percent" v-else>当前进度：<span>{{percent}}%</span></div>
+
+        </div>
+        <div style="position: relative">
+          <div class="input1">
+            <div class="llllll">SDC收账地址：</div><i-Input v-model="targetaddress" size="large"  style="width:250px;" placeholder="请输入SDC收账地址" ></i-Input>
+          </div>
+          <div class="input1">
+            <div class="llllll">投资：</div>
+            <Input-Number v-model="transAmount" size="large"  style="width:200px;" placeholder="请输入募集数量" :max="parseFloat(detailData.quantityre)" :min="0"></Input-Number><span style="margin-left:10px;">ETH</span>
+          </div>
+          <div class="input1" style="text-align: left; line-height:36px;">
+            <div class="llllll">应得：</div><span style="font-weight: bold">{{parseFloat(transAmount*detailData.ratioVal).toFixed(2)}}SDC</span>
+          </div>
+          <div class="input1">
+            <div class="llllll">渠道邀请码：</div><i-Input v-model="Invitationcode" size="large"  style="width:200px;" placeholder="请输入邀请码" ></i-Input>
+          </div>
+
+          <div style="padding:20px 0px;"><i-Button type="primary"  size="large" @click="gotoSubmitZfb" long>我要投资</i-Button></div>
+          <Spin size="large" fix v-if="percent>=100"><span style="font-size: 20px; font-weight: bold"><Icon type="ios-checkmark" style="margin-right:5px;"></Icon>募集已完成</span></Spin>
+        </div>
+
+      </div>
+
+
+    </div>
+  </base-right>
+</div>
+
+
+
+<script src="js/jquery.min.js"></script>
+<script src="js/vue.js"></script>
+
+<script src="js/iview.min.js"></script>
+<script src="js/web3.min.js"></script>
+<script src="js/truffle-contract.js"></script>
+<script src="js/app.js"></script>
+<script src="js/publicTemplate.js"></script>
+<script src="js/main.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            zongJindu:[
+                {
+                    month:4,
+                    type:"over",
+                    scale:50,
+                },
+                {
+                    month:5,
+                    type:"in",
+                    scale:10,
+                },
+                {
+                    month:6,
+                    type:"after",
+                    scale:10,
+                },
+                {
+                    month:7,
+                    type:"after",
+                    scale:10,
+                },
+                {
+                    month:8,
+                    type:"after",
+                    scale:10,
+                },
+                {
+                    month:9,
+                    type:"after",
+                    scale:10,
+                },
+            ],
+            width1:50,
+            width2:10,
+            width3:50,
+            percent:10,
+            qiehuan:0,
+            cityList: [
+                {
+                    value: '11111',
+                    label: 'ETH转SDC'
+                },
+//                    {
+//                        value: '22222',
+//                        label: 'SDC币转以太币'
+//                    },
+            ],
+            model1: '11111',
+            account:"获取中...",
+            transAmount: 1,
+            zfb_zongJine: 0,
+            columns1: [
+                {
+                    title: '转换时间',
+                    key: 'a'
+                },
+                {
+                    title: '转换方式',
+                    key: 'b'
+                },
+                {
+                    title: '转换数量',
+                    key: 'c'
+                },
+                {
+                    title: '状态',
+                    key: 'e'
+                }
+            ],
+            columns2: [
+                {
+                    title: '投资时间',
+                    key: 'age_text',
+                    width:100,
+                },
+                {
+                    title: '投资数量（ETH）',
+                    key: 'quantity',
+                    width:100,
+                },
+                {
+                    title: '获得数量（SDC）',
+                    key: 'sdc_quantity',
+                    width:100,
+                },
+                {
+                    title: '渠道邀请码',
+                    key: 'Invitationcode_text',
+                    width:100,
+                },
+                {
+                    title: 'SDC收账地址',
+                    key: 'targetaddress',
+                },
+                {
+                    title: '状态',
+                    key: 'txstatus_text',
+                    width:80,
+                }
+
+
+            ],
+            data1: [
+//                    {
+//                        a: '2018-03-04 12:20:15',
+//                        b: '以太币-SDC币',
+//                        c: '100',
+//                        d: '100',
+//                        e: '转换成功'
+//                    },
+            ],
+            detailData:"",
+            state:false,
+            Invitationcode:"",
+            targetaddress:"",
+        },
+        created: function () {
+            var that = this;
+            that.getData();
+            setTimeout(function(){
+                App.web3.eth.getAccounts(function(error, accounts) {
+                    if (error) {
+                        console.log(error);
+                    }
+                    console.log("account",accounts);
+                    that.account = accounts[0];
+                    that.targetaddress = accounts[0];
+                });
+            },500);
+        },
+        methods: {
+            getData:function(e){
+                var that = this;
+                $.ajax({
+                    type: 'GET',
+                    url: App.ip+"sdcRecord/getCollectInfo",
+                    dataType:"json",
+                    success: function(res){
+                        console.log("res",res);
+                        that.state = true;
+                        that.detailData = res;
+                        that.data1 = that.detailData.collectList;
+//                        that.detailData.content = '<span class="">众筹内容</span>';
+                        that.percent = parseFloat(that.detailData.quantityed/that.detailData.quantitytotal*100).toFixed(2);
+//                        that.percent=100;
+
+                    },
+                });
+            },
+            setJilu:function(txhash){
+                var that = this;
+                $.ajax({
+                    type: 'GET',
+                    url: App.ip+"sdcRecord/addTxRecordByCollect",
+                    data:{
+                        txhash:txhash,
+                        from:that.account,
+                        to:App.companyAccount,
+                        quantity:that.transAmount,//数量
+                        currency:"ETH",
+                        ratioid:"88d4a834a03a4f7ca6911a623d9e117a",
+                        Invitationcode:that.Invitationcode,
+                        targetaddress:that.targetaddress,
+                    },
+                    success: function(res){
+                        console.log("setJilu",res);
+                        if(false){
+                            that.transAmount = "";
+                        }
+                    },
+                });
+            },
+            gotoSubmitZfb: function () {
+                var that = this;
+                if((this.transAmount+"").split(".").length>1){
+                    if((this.transAmount+"").split(".")[1].length>9){
+                        this.$Message.info('请保证数量在小数点9位以内');
+                        return;
+                    }
+                }
+                if(this.transAmount>2000){
+                    this.$Message.info('单笔投资不得大于2000ETH');
+                    return;
+                }
+                if(this.transAmount<50){
+                    this.$Message.info('单笔投资不得少于50ETH');
+                    return;
+                }
+
+
+                var thisAmount = this.transAmount*1000000*1000000*1000000;
+
+                var jsonstr = {from:that.account,to:App.companyAccount,value:thisAmount};
+                console.log(jsonstr);
+
+                App.web3.eth.sendTransaction(jsonstr,function(error,kkkkk) {
+                    if(error=="null"||error==null){
+                        that.setJilu(kkkkk);
+                        that.modal2 = false;
+                        that.$Message.info('交易已发送至主网，请您耐心等候');
+                        setTimeout(function(){
+                            window.location.replace("account-collect-history.html")
+                        },1000)
+                    }
+                    console.log("sendTransaction",error,kkkkk);
+
+                });
+            }
+        }
+    })
+</script>
+</body>
+</html>

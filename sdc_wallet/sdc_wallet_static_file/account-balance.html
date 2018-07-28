@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>资金管理-账户余额</title>
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+  <link rel="stylesheet" href="css/iview.css">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div id="app">
+  <base-left indexname="accountBalance"></base-left>
+  <base-right>
+      <span slot="url">
+        <a href="index.html"><i class="ivu-icon ivu-icon-home"></i>首页</a>
+        <span class="s1">/</span>
+        <a>资金管理</a>
+        <span class="s1">/</span>
+        <span class="s2">账户余额</span>
+      </span>
+    <div class="mContent layout-account-recharge" slot="content">
+      <div style="padding:20px;">
+        <div class="log">
+          <div style="padding-bottom:10px;">
+            账户余额
+            <a style="float:right; color:#478BDC" href="account-help.html">常见问题？</a>
+          </div>
+          <i-Table :columns="columns1" :data="data1"></i-Table>
+        </div>
+      </div>
+
+    </div>
+
+
+  </base-right>
+  <!--<Modal v-model="modal3" width="360" style="z-index: 10">-->
+    <!--<p slot="header" style="color:#f60;text-align:center">-->
+      <!--<Icon type="information-circled"></Icon>-->
+      <!--<span>重要提示</span>-->
+    <!--</p>-->
+    <!--<div style="text-align: center;">-->
+      <!--<div style="padding:10px 20px; font-size: 14px;">系统检测到您未获取到用户数据，可能是您当前的上网环境异常，点击查看问题处理方案</div>-->
+      <!--<a href="account-help.html" style="color:#fff;" class="ivu-btn ivu-btn-primary ">查看问题处理方案</a>-->
+    <!--</div>-->
+    <!--<div slot="footer" class="clearlw"></div>-->
+  <!--</Modal>-->
+</div>
+
+
+
+<script src="js/jquery.min.js"></script>
+<script src="js/vue.js"></script>
+
+<script src="js/iview.min.js"></script>
+<script src="js/web3.min.js"></script>
+<script src="js/truffle-contract.js"></script>
+<script src="js/app.js"></script>
+<script src="js/publicTemplate.js"></script>
+<script src="js/main.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            modal3:false,
+            columns1: [
+                {
+                    title: '账户地址',
+                    key: 'a'
+                },
+                {
+                    title: 'ETH余额',
+                    key: 'eth'
+                },
+                {
+                    title: 'SDC余额',
+                    key: 'sdc'
+                },
+            ],
+            data1: []
+        },
+        created: function () {
+            var that = this;
+            setTimeout(function(){
+                App.web3.eth.getAccounts(function(error, accounts) {
+                    if (error) {
+//                        var r=confirm("系统检测到您当前的访问环境不正确!是否前往查看配置教程");
+                        if (r==true)
+                        {
+                            window.location.href="account-help.html";
+                        }
+                        else
+                        {
+                        }
+                    }
+                    else{
+                        console.log("accounts",accounts);
+
+                        var _data = [];
+                        for(var i=0;i<accounts.length;i++){
+                            that.getAccounSdc(accounts[i],i);
+                            that.getAccounEth(accounts[i],i);
+                            _data.push({
+                                a:accounts[i],
+                                eth:"",
+                                sdc:"",
+                            })
+                        }
+                        that.data1 = _data;
+                    }
+                });
+            },500)
+
+        },
+        methods: {
+            getAccounSdc: function(accountAddress,i) {
+                var that = this;
+                App.web3.eth.contract(App.abi).at(App.address).balanceOf.call(accountAddress,function(error,nasha){
+                    //console.log(nasha);
+                    that.data1[i].sdc = nasha.toNumber()/1000000/1000000/1000000;
+                    console.log("代币余额："+nasha.toNumber()/1000000/1000000/1000000);
+
+                });
+            },
+            getAccounEth: function(accountAddress,i) {
+                var that = this;
+                // 通过ABI和地址获取已部署的合约对象
+                App.web3.eth.getBalance(accountAddress,function(error,nasha){
+                    that.data1[i].eth = nasha.toNumber()/1000000/1000000/1000000;
+                    console.log("以太币余额："+nasha.toNumber()/1000000/1000000/1000000);
+                });
+            },
+            show: function () {
+                this.visible = true;
+            }
+        }
+    })
+</script>
+</body>
+</html>

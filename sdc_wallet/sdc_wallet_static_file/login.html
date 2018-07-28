@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>德扑链平台 登录</title>
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+  <link rel="stylesheet" href="css/iview.css">
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    html,body{
+      position: absolute; top:0px; left:0px;
+    }
+    .heiBg{
+      background: rgba(0,0,0,0.7); height:100%;
+      width:100%;
+    }
+    .widthBox{
+      width:500px; position: absolute;
+      height:500px;
+      left:50%; top:50%;
+      margin-left:-250px;
+      margin-top:-250px;
+      text-align: center;
+    }
+    a{
+      display: block;
+    }
+    .logo3{
+      width:150px; margin:0px auto; display: block;
+    }
+    .name{
+      line-height:40px; color:#fff; font-size: 20px; font-weight: bold;
+      padding-bottom:20px;
+    }
+    .input {
+      width:330px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+      padding:10px 15px;
+      margin:0px auto;
+      text-align: center;
+    }
+    .input li{
+      padding:5px 0px;
+    }
+    .input input{
+      border-width:0px;
+      padding:10px 15px; text-align: left;
+    }
+
+  </style>
+</head>
+<body>
+<div id="app" style=" background:url('images/14280981.jpg') #111114 center; background-size: cover">
+  <div class="heiBg">
+    <div class="widthBox">
+      <a href="index.html">
+        <img class="logo3" src="images/EOS_spinning_logo.gif"/>
+        <div class="name">欢迎您访问德扑链平台</div>
+      </a>
+      <div class="input">
+        <ul>
+          <li><i-Input size="large" style="width:300px;" placeholder="请输入登录账号" v-model="login_no" ></i-Input></li>
+          <li><i-Input size="large" type="password" style="width:300px;" placeholder="请输入登录密码" @on-enter="submit" v-model="login_pass" ></i-Input></li>
+          <li><i-Button :loading="loading" type="primary" style="width:300px;" size="large"  @click="submit" >登录</i-Button></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<script src="js/jquery.min.js"></script>
+<script src="js/vue.js"></script>
+
+<script src="js/iview.min.js"></script>
+<script src="js/web3.min.js"></script>
+<script src="js/truffle-contract.js"></script>
+<script src="js/app.js"></script>
+<script src="js/publicTemplate.js"></script>
+<script src="js/main.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            login_no:"",
+            login_pass:"",
+            loading:false,
+        },
+        created: function () {
+
+            var that = this;
+
+            that.logout();
+        },
+        methods: {
+            logout:function(){
+                localStorage.setItem('login_no',"");
+                $.ajax({
+                    type: 'GET',
+                    url: App.ip+"sdcRecord/logout",
+                    dataType:"json",
+                    data:{
+                        login_no:App.getLoginNo(),
+                    },
+                    success: function(res){
+
+                        console.log("logout",res);
+                    },
+                });
+            },
+            submit:function(e){
+                var that = this;
+                if(that.login_no==""){
+                    that.$Message.info('请输入登录账号');
+                    return;
+                }
+                if(that.login_pass==""){
+                    that.$Message.info('请输入登录密码');
+                    return;
+                }
+                that.loading = true;
+                $.ajax({
+                    type: 'GET',
+                    url: App.ip+"sdcRecord/login",
+                    dataType:"json",
+                    data:{
+                        login_no:that.login_no,
+                        login_pass:that.login_pass,
+                    },
+                    success: function(res){
+                        console.log("res",res);
+                        if(res.errorCode=="0000"){
+                            that.$Message.info('登录成功,即将自动跳转至我的钱包！');
+                            localStorage.setItem('login_no',that.login_no);
+                            setTimeout(function(){
+                                window.location.replace("account-queryTransMainList.html")
+                            },1000)
+                        }
+                        else{
+                            localStorage.setItem('login_no',"");
+                            that.$Message.info('登录失败，请重新登录！');
+                        }
+                        that.loading = false;
+                    },
+                });
+            },
+        }
+    })
+</script>
+</body>
+</html>

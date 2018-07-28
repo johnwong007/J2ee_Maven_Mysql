@@ -1,0 +1,65 @@
+
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="format-detection" content="telephone=no">
+</head>
+<body>
+<div id="overlay">
+</div>
+</body>
+<script>
+    alert(bb());
+    function bb(aa){
+        if(aa==""){
+            return 0;
+        }
+        else if(aa==undefined){
+            return 0;
+        }
+        else if(aa=="undefined"){
+            return 0;
+        }
+        else{
+            var num = new Number(aa);
+            var _array = num.toLocaleString().split(",");
+            console.log("_array",_array);
+
+            var mm = "";
+            for(var i=0;i<_array.length-6;i++){
+                console.log("+",_array[i]);
+                mm += _array[i]+"";
+            }
+            console.log(mm);
+            return parseFloat(mm);
+        }
+    }
+
+    function aa(aa){
+        var num = new Number(aa);
+        var _array = num.toLocaleString().split(",");
+        console.log("_array",_array);
+
+        var mm = "";
+        for(var i=0;i<_array.length-6;i++){
+            console.log("+",_array[i]);
+            mm += _array[i]+"";
+        }
+        var nn = "";
+        for(var i=_array.length-6;i<_array.length;i++){
+            console.log("+",_array[i]);
+            nn += _array[i]+"";
+        }
+        console.log(mm+"."+nn);
+        return parseFloat(mm+"."+nn);
+    }
+
+
+
+//    alert(num);
+//    alert(num.toLocaleString());
+////    alert(aa/1000000000000000000)
+</script>
+</html>

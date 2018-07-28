@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>资金管理-常见问题</title>
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <link rel="stylesheet" href="css/iview.css">
+    <link rel="stylesheet" href="css/main.css">
+  </head>
+  <body>
+  <div id="app">
+    <base-left indexname="accountBalance"></base-left>
+    <base-right>
+      <span slot="url">
+        <a href="index.html"><i class="ivu-icon ivu-icon-home"></i>首页</a>
+        <span class="s1">/</span>
+        <a>资金管理</a>
+        <span class="s1">/</span>
+        <span class="s2">常见问题</span>
+      </span>
+      <div class="mContent layout-help" slot="content">
+        <div style="padding:20px;">
+          <div class="layout-tab-m">
+            <br/>
+            <div class="d1">一、获取不到账户与越解决办法</div>
+            <div class="d2">
+              <p class="p1">1.安装谷歌浏览器</p>
+              <p class="p2">window版本下载地址： <a target="_blank" href="http://sw.bos.baidu.com/sw-search-sp/software/699c20ec5a22e/ChromeStandalone_65.0.3325.146_Setup.exe">http://sw.bos.baidu.com/sw-search-sp/software/699c20ec5a22e/ChromeStandalone_65.0.3325.146_Setup.exe</a></p>
+              <p class="p2">MAC 版本下载地址： <a target="_blank" href="http://sw.bos.baidu.com/sw-search-sp/software/b77ec09507e2a/googlechrome_mac_63.0.3239.84.dmg">http://sw.bos.baidu.com/sw-search-sp/software/b77ec09507e2a/googlechrome_mac_63.0.3239.84.dmg</a></p>
+
+              <p class="p1">2.安装 MetaMask插件</p>
+              <p class="p2">2.1.首先下载文档中的MetaMask插件文件，右键点击并选择“保存到文件”</p>
+              <img style="text-align: center; padding-left:50px;" src="images/help_1_1.jpg"/>
+              <p class="p2">2.2.然后打开谷歌浏览器，找到<img style="text-align: center;display: inline-block; height:20px; margin:0px 10px;" src="images/help_1_2.jpg"/>并点击，选择“更多工具”-“扩展程序”</p>
+              <img style="text-align: center; padding-left:50px;" src="images/help_1_3.jpg"/>
+              <p class="p2">2.3.打开文件夹，将上面下载的插件文件拖拽至“扩展程序”页面 </p>
+              <img style="text-align: center; padding-left:50px;" src="images/help_1_4.jpg"/>
+              <p class="p2">2.4.松开鼠标稍等片刻即完成，此时右上角会出现MetaMask的图标</p>
+              <img style="text-align: center; padding-left:50px;" src="images/help_1_5.jpg"/>
+            </div>
+            <br/>
+            <br/>
+          </div>
+          <br/>
+        </div>
+
+      </div>
+    </base-right>
+  </div>
+
+
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/vue.js"></script>
+
+    <script src="js/iview.min.js"></script>
+    <script src="js/web3.min.js"></script>
+    <script src="js/truffle-contract.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/publicTemplate.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                zfb_jine: "",
+                zfb_zongJine: 0,
+                columns1: [
+                    {
+                        title: '提现时间',
+                        key: 'a'
+                    },
+                    {
+                        title: '提现方式',
+                        key: 'b'
+                    },
+                    {
+                        title: '提现数量',
+                        key: 'c'
+                    },
+                    {
+                        title: '提现金额（单位：RMB）',
+                        key: 'd'
+                    },
+                    {
+                        title: '状态',
+                        key: 'e'
+                    }
+                ],
+                data1: [
+                    {
+                        a: '2018-03-04 12:20:15',
+                        b: '支付宝',
+                        c: '100',
+                        d: '100',
+                        e: '已到账'
+                    },
+                  ]
+            },
+            created: function () {
+                // `this` 指向 vm 实例
+                console.log('a is: ' + this.a)
+            },
+            methods: {
+                gotoSubmitZfb: function () {
+                    alert(this.zfb_jine);
+                },
+            }
+        })
+    </script>
+  </body>
+</html>

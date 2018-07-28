@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>资金管理-转账</title>
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+  <link rel="stylesheet" href="css/iview.css">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div id="app">
+  <base-left indexname="accountBalance"></base-left>
+  <base-right>
+      <span slot="url">
+        <a href="index.html"><i class="ivu-icon ivu-icon-home"></i>首页</a>
+        <span class="s1">/</span>
+        <a>资金管理-SDC转账</a>
+        <span class="s1">/</span>
+        <span class="s2">转账</span>
+      </span>
+    <div class="mContent layout-account-recharge" slot="content">
+      <div style="padding:20px;">
+        <div class="layout-tab-h">
+          <a href="account-transfer-sdc.html" class="in" >SDC转账</a>
+          <a href="account-transfer.html">以太币转账</a>
+        </div>
+        <div class="layout-tab-m">
+          <br/>
+          <ul>
+            <li class="clearlw">
+              <div class="ll"><span>当前账户：</span></div>
+              <div class="rr">
+                <span style="font-weight: bold" id="fromAccount">{{account}}</span>
+              </div>
+            </li>
+            <li class="clearlw">
+              <div class="ll"><span>账户SDC余额：</span></div>
+              <div class="rr">
+                <span style="font-weight: bold;" >{{sdcyue}}</span> 个
+                <!--<A href="account-recharge.html" style="color:#5C9FEE; margin-left:10px; text-decoration: underline">[点击购买SDC]</A>-->
+              </div>
+            </li>
+            <li class="clearlw">
+              <div class="ll"><span>目标账户：</span></div>
+              <div class="rr">
+                <i-input v-model="targetAccount" size="large"  style="width:350px;" placeholder="请输入转账账户" id="targetAccount"></i-input>
+              </div>
+            </li>
+
+            <li class="clearlw">
+              <div class="ll"><span>转账数量：</span></div>
+              <div class="rr">
+                <input-Number v-model="transAmount" size="large"  style="width:300px;" placeholder="请输入转账数量"  :max="sdcyue"></input-Number>
+                个SDC
+                <!--<span style="color:#f22; margin-left:10px; margin-right:10px;">当前余额：{{sdcyue}}个SDC</span>-->
+                <!--<A href="account-recharge.html" style="color:#5C9FEE; text-decoration: underline">购买SDC</A>-->
+              </div>
+            </li>
+
+            <li class="clearlw">
+              <div class="ll"><span>备注：</span></div>
+              <div class="rr">
+                <i-input v-model="beizhu" size="large"  style="width:350px;" placeholder="请输入备注"></i-input>
+              </div>
+            </li>
+
+
+            <li class="clearlw">
+              <div class="ll"><span></span></div>
+              <div class="rr">
+                <i-Button type="primary"  size="large" @click="showModal">申请转账</i-Button>
+                <!--<i-Button type="primary"  size="large" @click="gotoSubmitZfb">确定转账</i-Button>-->
+              </div>
+            </li>
+
+            <Modal v-model="modal2" width="360">
+              <p slot="header" style="color:#f60;text-align:center">
+                <Icon type="information-circled"></Icon>
+                <span>提示</span>
+              </p>
+              <div style="text-align:center">
+                <p>是否授权解锁 {{transAmount}} SDC.</p>
+              </div>
+              <div slot="footer" class="clearlw">
+                <div style="float:left; width:50%; box-sizing: border-box; padding-right:10px;">
+                  <i-button size="large" long @click="modal2=false" :loading="modal_loading">取消</i-button>
+                </div>
+                <div style="float:left; width:50%; box-sizing: border-box; padding-left:10px;">
+                  <i-button type="success" size="large" long :loading="modal_loading" @click="sqOk">授权</i-button>
+                </div>
+              </div>
+            </Modal>
+
+
+            <Modal v-model="modal3" width="560">
+              <p slot="header" style="color:#f60;text-align:center">
+                <Icon type="information-circled"></Icon>
+                <span>信息确认</span>
+              </p>
+              <div class="fwafwa">
+                <ul>
+                  <li class="clearlw"> <div class="lll">当前账户:</div> <div class="rrr">{{account}}</div> </li>
+                  <li class="clearlw"> <div class="lll">目标账户:</div> <div class="rrr">{{targetAccount}}</div> </li>
+                  <li class="clearlw"> <div class="lll">转账数量:</div> <div class="rrr">{{transAmount}} SDC</div></li>
+                  <li class="clearlw"> <div class="lll">备注:</div> <div class="rrr">{{beizhu}}</div> </li>
+                </ul>
+              </div>
+              <div slot="footer" class="clearlw">
+                <div style="float:left; width:50%; box-sizing: border-box; padding-right:10px;">
+                  <i-button size="large" long @click="modal3=false;modal_loading3=false" >取消</i-button>
+                </div>
+                <div style="float:left; width:50%; box-sizing: border-box; padding-left:10px;">
+                  <i-button type="success" size="large" long :loading="modal_loading3" @click="gotoSubmitZfb">确定转账</i-button>
+                </div>
+              </div>
+            </Modal>
+
+
+          </ul>
+          <br/>
+          <br/>
+        </div>
+        <br/>
+        <div class="log">
+          <div style="padding-bottom:10px;">转账记录 [存在主网到账延迟，请耐心等待]</div>
+          <i-Table :columns="columns1" :data="data1" :loading="loading"></i-Table>
+        </div>
+      </div>
+
+    </div>
+  </base-right>
+
+
+
+</div>
+
+
+
+<script src="js/jquery.min.js"></script>
+<script src="js/vue.js"></script>
+
+<script src="js/iview.min.js"></script>
+<script src="js/web3.min.js"></script>
+<script src="js/truffle-contract.js"></script>
+<script src="js/app.js"></script>
+<script src="js/publicTemplate.js"></script>
+<script src="js/main.js"></script>
+<script>
+    var thisAccount;
+    var approveIsOk = false;
+    new Vue({
+        el: '#app',
+        data: {
+
+            modal2:false,
+            modal_loading:false,
+
+            modal3:false,
+            modal_loading3:false,
+
+
+
+            account:"获取中...",
+            targetAccount:"",
+            transAmount:"",
+
+            name: "",
+            zfb_jine: "",
+            beizhu: "",
+            zfb_zongJine: 0,
+            columns1: [
+                {
+                    title: '转账时间',
+                    key: 'age_text'
+                },
+                {
+                    title: '转账账户',
+                    key: 'to',
+                    width:400
+                },
+                {
+                    title: '转账金额（单位：SDC）',
+                    key: 'quantity'
+                },
+                {
+                    title: '转账备注',
+                    key: 'remark'
+                },
+                {
+                    title: '状态',
+                    key: 'txstatus_text'
+                }
+            ],
+            loading:true,
+            data1: [
+//                {
+//                    a: '2018-03-04 12:20:15',
+//                    b: '130013313',
+//                    c: '100',
+//                    d: '100',
+//                    e: '',
+//                    f: '已到账'
+//                },
+            ],
+            sdcyue:"获取中..."
+        },
+        created: function () {
+            var that = this;
+            setTimeout(function(){
+//                获取账户地址
+                App.web3.eth.getAccounts(function(error, accounts) {
+                    if (error) {
+                        console.log(error);
+                    }
+                    console.log("account",accounts);
+                    that.account = accounts[0];
+                    thisAccount = accounts[0];
+                    that.getData();
+
+
+                    //获取sdc 余额
+                    App.web3.eth.contract(App.abi).at(App.address).balanceOf.call(that.account,function(error,nasha){
+                        //console.log(nasha);
+                        that.sdcyue = nasha.toNumber()/1000000/1000000/1000000;
+                        console.log("代币余额："+nasha.toNumber()/1000000/1000000/1000000);
+                    });
+                });
+
+            },500);
+        },
+        methods: {
+            getData:function(_a){
+                var that = this;
+
+                $.ajax({
+                    type: 'GET',
+                    url: App.ip+"sdcRecord/queryTransferRecordForUser",
+                    dataType:"json",
+                    data:{
+                        accAddress:that.account,
+                        currency:"SDC"
+                    },
+                    success: function(res){
+                        console.log("res",res);
+                        that.data1 = res;
+                        that.loading = false;
+                    },
+                });
+            },
+
+            sqOk: function(){
+                var that = this;
+
+                that.modal_loading3 = false;
+                that.modal_loading = true;
+
+
+
+//                var hehe = App.web3.eth.contract(App.abi).at(that.targetAccount);
+//                var thisAmount = this.transAmount*1000000*1000000*1000000;
+//                var toAccount = this.targetAccount;
+//                var fromAccount = thisAccount;
+                //console.log(hehe.Transfer());
+                //return;
+//                if(!approveIsOk){
+//                    hehe.approve(fromAccount,thisAmount,function(error,kkkk){
+//                        approveIsOk = true;
+//                        if(kkkk=="undefined"){
+//                            this.$Message.info('授权失败');
+//                        }
+//                        else{
+//                            that.modal3 = true;
+//                        }
+//                        that.modal2 = false;
+//                        that.modal_loading = false;
+//
+//                    });
+//                    return;
+//                }
+                that.modal3 = true;
+                that.modal2 = false;
+                that.modal_loading = false;
+            },
+            showModal: function(){
+
+
+                if(this.targetAccount==""){
+                    this.$Message.info('请输入目标账户');
+                    return;
+                }
+
+
+                if(this.transAmount<=0){
+                    this.$Message.info('请输入数量');
+                    return;
+
+                }
+                if((this.transAmount+"").split(".").length>1){
+                    if((this.transAmount+"").split(".")[1].length>9){
+                        this.$Message.info('请保证数量在小数点9位以内');
+                        return;
+                    }
+                }
+
+                this.modal3 = true;
+            },
+
+            setJilu:function(txhash){
+                var that = this;
+                $.ajax({
+                    type: 'GET',
+                    url: App.ip+"sdcRecord/addTxRecordByTransfer",
+                    data:{
+                        txhash:txhash,
+                        from:that.account,
+                        to:that.targetAccount,
+                        quantity:that.transAmount,//数量
+                        currency:"SDC",
+                        remark:that.beizhu,
+                    },
+                    success: function(res){
+                      console.log("setJilu",res);
+                        location.reload();
+//                      that.getData();
+                      if(true){
+                          that.account = "";
+                          that.targetAccount = "";
+                          that.transAmount = "";
+                          that.beizhu = "";
+                      }
+                    },
+                });
+            },
+            gotoSubmitZfb: function () {
+                var that = this;
+                that.modal_loading3 = true;
+//                是否授权解锁 *** 个SDC
+                //var address = "0x8cdaf0cd259887258bc13a92c0a6da92698644c0";//本机代币SDC的合约地址
+                var hehe = App.web3.eth.contract(App.abi).at(App.address);
+                var thisAmount = this.transAmount*1000000*1000000*1000000;
+                var toAccount = this.targetAccount;
+                var fromAccount = thisAccount;
+//                if(!approveIsOk){
+//                    hehe.approve(fromAccount,thisAmount,function(error,kkkk){
+//                        approveIsOk = true;
+//                    });
+//                    return;
+//                }
+
+                //if(!approveIsOk)return;
+//                alert("ffffff");
+                //alert(fromAccount);
+                //alert("targetAccount:"+this.targetAccount);
+                //alert("amount:"+this.amount);
+                //alert(thisAccount);
+                //alert(this.targetAccount);
+                //0xf17f52151EbEF6C7334FAD080c5704D77216b732
+                //console.log(hehe);
+                //console.log("this.amount:"+this.transAmount);
+                hehe.transfer(toAccount,thisAmount,function(error,kkkkk){
+                    console.log("error:"+error,kkkkk);
+                    if(error=="null"||error==null){
+                    that.setJilu(kkkkk);
+                    that.$Message.info('交易已发送至主网，请您耐心等候');
+
+//                    if(kkkkk=="undefined"||kkkkk==undefined){
+//                        this.$Message.info('失败');
+//                    }
+//                    else{
+//                        that.$Message.info('成功',kkkkk);
+//                    }
+
+                    }
+                    that.modal3 = false;
+                    that.modal_loading3 = false;
+                    that.modal2 = false;
+                    that.modal_loading = false;
+                });
+                //var bbb = hehe.transferFrom(thisAccount,this.targetAccount,this.transAmount);
+                //console.log(bbb)
+            }
+        }
+    })
+</script>
+<style>
+
+  .fwafwa li{
+    padding:10px 0px; font-size: 14px;
+  }
+
+  .fwafwa .lll{
+    float:left; width:30%; padding-right:20px; text-align: right;
+  }
+  .fwafwa .rrr{
+    float:left; width:70%; text-align: left;
+  }
+</style>
+</body>
+</html>

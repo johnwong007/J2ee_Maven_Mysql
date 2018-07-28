@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>资金管理-交易记录</title>
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+  <link rel="stylesheet" href="css/iview.css">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div id="app">
+  <base-left indexname="accountBalance"></base-left>
+  <base-right>
+      <span slot="url">
+        <a href="index.html"><i class="ivu-icon ivu-icon-home"></i>首页</a>
+        <span class="s1">/</span>
+        <a>资金管理</a>
+        <span class="s1">/</span>
+        <span class="s2">交易记录</span>
+      </span>
+    <div class="mContent layout-account-recharge" slot="content">
+      <div style="padding:20px;">
+        <div class="log">
+          <div id="accountTransactionHistory" style="display: none"></div>
+          <div style="padding-bottom:10px;">交易记录</div>
+          <i-Table :columns="columns1" :data="data1" :loading="loading"></i-Table>
+        </div>
+      </div>
+
+    </div>
+  </base-right>
+</div>
+
+
+
+<script src="js/jquery.min.js"></script>
+<script src="js/vue.js"></script>
+
+<script src="js/iview.min.js"></script>
+<script src="js/web3.min.js"></script>
+<script src="js/truffle-contract.js"></script>
+<script src="js/app.js"></script>
+<script src="js/publicTemplate.js"></script>
+<script src="js/main.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            name: "",
+            zfb_jine: "",
+            beizhu: "",
+            zfb_zongJine: 0,
+            columns1: [
+                {
+                    title: 'Tx哈希值',
+                    key: 'a'
+                },
+                {
+                    title: '时间',
+                    key: 'b',
+                    width:130
+                },
+                {
+                    title: '从',
+                    key: 'c'
+                },
+                {
+                    title: '到',
+                    key: 'd'
+                },
+                {
+                    title: '数量',
+                    key: 'e',
+                    width:100
+                },
+            ],
+            loading:true,
+            data1: [
+//                    {
+//                        a: '2018-03-04 12:20:15',
+//                        b: '转账（13013313130）',
+//                        c: '100',
+//                        d: '100',
+//                        e: '',
+//                        f: '已到账'
+//                    },
+            ]
+        },
+        created: function () {
+
+
+            var that = this;
+            setTimeout(function(){
+                App.web3.eth.getAccounts(function(error, accounts) {
+                    if (error) {
+                        that.modal3 = true;
+                        that.getData("");
+                    }
+                    else{
+                        console.log("accounts",accounts);
+//                        that.getData("");
+                        that.getData("?a="+accounts[0]);
+                    }
+                });
+            },500)
+
+
+
+        },
+        methods: {
+            getData:function(e){
+                var that = this;
+                $.ajax({
+                    type: 'GET',
+                    url: App.ip+"myServlet/transRecord"+e,
+                    success: function(res){
+                        that.jiexiHtml(res)
+
+                    },
+                });
+            },
+            nummm:function (str,c) {
+//            var str = "abbbbbsdsdsdasdlsfj";
+//            var c = "b"; // 要计算的字符
+                var regex = new RegExp(c, 'g'); // 使用g表示整个字符串都要匹配
+                var result = str.match(regex);
+                var count = !result ? 0 : result.length;
+                console.log(c + " 的数量为 " + count);
+                return count;
+            },
+            jiexiHtml:function (res){
+                var that = this;
+
+//                空数据判断
+                if(res.indexOf("<td colspan",1)!=-1){
+                    that.data1 = [];
+                    that.loading = false;
+                    console.log("数据为空！");
+                }
+                else{
+                    var a = res.indexOf("<table class",1);
+                    var b = res.indexOf("</table>",1);
+                    var _html = res.substring(a,b+8)
+//            console.log(_html);
+                    $("#accountTransactionHistory").html(_html);
+                    that.jiexiTab(_html);
+                }
+
+
+            },
+            jiexiTab:function (_html){
+                var that = this;
+                //                   计算数据条数（包括头）
+//            nummm(_html,"<tr>");
+                var _aaa = $("#accountTransactionHistory tr")
+                var trNum = _aaa.length;
+                console.log(_aaa.eq(1).html());
+                var aaa=[];
+                for(var i=1;i<trNum;i++){
+                    var bb = _aaa.eq(i).find("td").eq(1).find("span").html();
+                    bb = bb.replace("days","天");
+                    bb = bb.replace(" hrs ago"," 小时以前");
+                    aaa.push({
+                        a:_aaa.eq(i).find("td").eq(0).find("span a").html(),
+//                    b:$("#app tr").eq(i).find("td").eq(1).find("span").attr("title")
+                        b:bb,
+                        c:_aaa.eq(i).find("td").eq(2).find("span a").html(),
+//                        d:"https://etherscan.io"+_aaa.eq(i).find("td").eq(3).find("img").attr("src"),
+                        d:_aaa.eq(i).find("td").eq(4).find("span a").html(),
+                        e:_aaa.eq(i).find("td").eq(5).html(),
+                    })
+                }
+                that.data1 = aaa;
+                that.loading = false;
+                console.log("aaa",aaa);
+            }
+        }
+    })
+</script>
+</body>
+</html>
